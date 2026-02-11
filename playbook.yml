@@ -1,7 +1,35 @@
-- name: Run wartest container
-  community.docker.docker_container:
-    name: wartest
-    image: "{{ image }}"
-    state: started
-    ports:
-      - "8081:8080"
+# Sur le serveur Jenkins, dans le répertoire du projet
+cd /var/lib/jenkins/workspace/Deploy27/jenkins-ansible-docker27
+
+# Remplacez le playbook complet
+cat > playbook.yml << 'EOF'
+---
+- name: Déployer l'application Docker wartest
+  hosts: all
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Pull l'image Docker depuis le registry
+      community.docker.docker_image:
+        name: "{{ image }}"
+        source: pull
+        force_source: yes
+
+    - name: Supprimer l'ancien conteneur s'il existe
+      community.docker.docker_container:
+        name: wartest
+        state: absent
+        force_kill: yes
+
+    - name: Lancer le conteneur wartest
+      community.docker.docker_container:
+        name: wartest
+        image: "{{ image }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "8081:8080"
+        env:
+          TZ: "Europe/Paris"
+EOF
