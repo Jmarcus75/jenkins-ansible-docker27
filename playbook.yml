@@ -1,15 +1,7 @@
-- name: Deploy wartest container
-  hosts: all
-  become: yes
-  vars:
-    image: "registry.gitlab.com/jmarcus75/presentations-jenkins20/wartest:version-1"
-
-  tasks:
-    - name: Run wartest container
-      community.general.docker_container:
-        name: wartest
-        image: "{{ image }}"
-        state: started
-        restart_policy: unless-stopped
-        ports:
-          - "8081:80"
+- name: Run wartest container
+  community.docker.docker_container:
+    name: wartest
+    image: "{{ image }}"
+    state: started
+    ports:
+      - "8081:8080"
